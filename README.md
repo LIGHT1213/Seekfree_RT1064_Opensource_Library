@@ -7,9 +7,10 @@
 ![Image text](https://raw.githubusercontent.com/LIGHT1213/picture/master/2.jpg)
 # 由于本人精力有限，此库所使用的逐飞库的版本通常落后于逐飞官方的版本
 =======================================================================
-# 注意如果出现如图所示的错误
+~~# 注意如果出现如图所示的错误~~
 
 ![Image text](https://raw.githubusercontent.com/LIGHT1213/picture/master/1.jpg)
 
-# 请切换回v5完全编译一次（此次编译无需开启browse information），再切换回来即可。
-# 此种情况出现的原因可能是scf分散加载文件导致的
+~~# 请切换回v5完全编译一次（此次编译无需开启browse information），再切换回来即可。~~
+~~# 此种情况出现的原因可能是scf分散加载文件导致的~~
+# 该问题目前已经修复
