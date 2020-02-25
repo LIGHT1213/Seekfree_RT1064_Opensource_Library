@@ -298,8 +298,7 @@ _Pragma("diag_suppress=Pm120")
 #if ((!(defined(FSL_FEATURE_HAS_NO_NONCACHEABLE_SECTION) && FSL_FEATURE_HAS_NO_NONCACHEABLE_SECTION)) && defined(FSL_FEATURE_L1ICACHE_LINESIZE_BYTE))
 #define AT_NONCACHEABLE_SECTION(var) __attribute__((section("NonCacheable"), zero_init)) var
 #define AT_NONCACHEABLE_SECTION_ALIGN(var, alignbytes) \
-				__attribute__((section(".bss.NonCacheable"))) __attribute__((aligned(alignbytes))) var
-    //__attribute__((section("NonCacheable"), zero_init)) __attribute__((aligned(alignbytes))) var
+    __attribute__((section("NonCacheable"), zero_init)) __attribute__((aligned(alignbytes))) var
 #define AT_NONCACHEABLE_SECTION_INIT(var) __attribute__((section("NonCacheable.init"))) var
 #define AT_NONCACHEABLE_SECTION_ALIGN_INIT(var, alignbytes) \
     __attribute__((section("NonCacheable.init"))) __attribute__((aligned(alignbytes))) var

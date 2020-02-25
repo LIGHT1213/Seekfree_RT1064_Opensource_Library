@@ -16,8 +16,33 @@
  * @Taobao   		https://seekfree.taobao.com/
  * @date       		2019-04-30
  ********************************************************************************************************************/
- 
+
+#include "fsl_gpt.h"
 #include "zf_systick.h"
+
+static uint8 gpt_init_flag;
+
+
+//-------------------------------------------------------------------------------------------------------------------
+//  @brief      gpt初始化
+//  @param      void            
+//  @return     void
+//  Sample usage:               无需用户调用，用户请使用h文件中的宏定义
+//-------------------------------------------------------------------------------------------------------------------
+void gpt_init(void)
+{
+    if(!gpt_init_flag)
+    {
+        gpt_config_t gptConfig;
+        
+        gpt_init_flag = 1;
+        GPT_GetDefaultConfig(&gptConfig);           //获取默认配置
+        GPT_Init(DELAY_GPT, &gptConfig);            //GPT初始化 便于打开时钟
+        GPT_Deinit(DELAY_GPT);                      //GPT反初始化
+        GPT_Init(DELAY_GPT, &gptConfig);            //GPT初始化
+        GPT_SetClockDivider(DELAY_GPT, GPT_DIV);    //设置分频系数
+    }
+}
 
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -28,6 +53,7 @@
 //-------------------------------------------------------------------------------------------------------------------
 void systick_delay(uint32 time)
 {
+#if(0==DELAY_TIMER_TYPE)
     if(time == 0)   return;
     assert(SysTick_LOAD_RELOAD_Msk >= time);//断言   延时时间必须小于或等于SysTick_LOAD_RELOAD_Msk
     SysTick->CTRL = 0x00;                   //先关了 systick ,清标志位
@@ -38,6 +64,17 @@ void systick_delay(uint32 time)
                     | SysTick_CTRL_CLKSOURCE_Msk      //时钟源选择 (core clk)
                 );
     while( !(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk));//等待时间到
+    
+#elif(1==DELAY_TIMER_TYPE)
+    
+    
+    gpt_init();
+    GPT_SetOutputCompareValue(DELAY_GPT, kGPT_OutputCompare_Channel1, time);//设置定时时间
+    GPT_StartTimer(DELAY_GPT);                      //启动定时器
+    while(!GPT_GetStatusFlags(DELAY_GPT,kGPT_OutputCompare1Flag));
+    GPT_ClearStatusFlags(DELAY_GPT,kGPT_OutputCompare1Flag);
+    GPT_StopTimer(DELAY_GPT);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -49,7 +86,7 @@ void systick_delay(uint32 time)
 void systick_delay_ms(uint32 ms)
 {
     //get_clk();//获取内核时钟便于后面设置
-	while(ms--) systick_delay(SYSTICK_SOURCE_CLOCK/1000);
+	while(ms--) systick_delay(MSEC_TO_COUNT(1, DELAY_CLK));
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -60,6 +97,7 @@ void systick_delay_ms(uint32 ms)
 //-------------------------------------------------------------------------------------------------------------------
 void systick_timing(uint32 time)
 {
+#if(0==DELAY_TIMER_TYPE)
     assert(SysTick_LOAD_RELOAD_Msk >= time);//断言   延时时间必须小于或等于SysTick_LOAD_RELOAD_Msk
     SysTick->LOAD = time;                   //设置延时时间
     SysTick->VAL = 0x00;       	            //清空计数器
@@ -68,6 +106,14 @@ void systick_timing(uint32 time)
                     | SysTick_CTRL_TICKINT_Msk      //使能中断
                     | SysTick_CTRL_CLKSOURCE_Msk    //时钟源选择 (core clk) 
                 );
+#elif(1==DELAY_TIMER_TYPE)
+    
+    gpt_init();
+    GPT_SetOutputCompareValue(DELAY_GPT, kGPT_OutputCompare_Channel1, time);//设置定时时间
+    GPT_StartTimer(DELAY_GPT);                      //启动定时器
+    GPT_EnableInterrupts(DELAY_GPT,GPT_IR_OF1IE_MASK);//使能中断
+    EnableIRQ(GPT2_IRQn);
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -78,6 +124,7 @@ void systick_timing(uint32 time)
 //-------------------------------------------------------------------------------------------------------------------
 void systick_start(void)
 {
+#if(0==DELAY_TIMER_TYPE)
     SysTick->LOAD = SysTick_LOAD_RELOAD_Msk;//设置延时时间
     SysTick->VAL = 0x00;       	            //清空计数器
     SysTick->CTRL = ( 0 
@@ -85,6 +132,12 @@ void systick_start(void)
                     //| SysTick_CTRL_TICKINT_Msk      //使能中断
                     | SysTick_CTRL_CLKSOURCE_Msk    //时钟源选择 (core clk) 
                 );
+#elif(1==DELAY_TIMER_TYPE)
+    
+    gpt_init();
+    GPT_SetOutputCompareValue(DELAY_GPT, kGPT_OutputCompare_Channel1, 0xffffffff);//设置定时时间
+    GPT_StartTimer(DELAY_GPT);                      //启动定时器
+#endif
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -94,5 +147,9 @@ void systick_start(void)
 //-------------------------------------------------------------------------------------------------------------------
 uint32 systick_getval(void)
 {
+#if(0==DELAY_TIMER_TYPE)
     return (SysTick_LOAD_RELOAD_Msk - SysTick->VAL);
+#elif(1==DELAY_TIMER_TYPE)
+    return (GPT_GetCurrentTimerCount(DELAY_GPT));
+#endif
 }

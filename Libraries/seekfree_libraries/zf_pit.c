@@ -31,9 +31,6 @@ void pit_init(void)
 {
     pit_config_t pitConfig;
     
-    CLOCK_SetMux(kCLOCK_PerclkMux, 0U); //将PERCLK_CLK链接到IPG_CLK
-    CLOCK_SetDiv(kCLOCK_PerclkDiv, 2U); //分频系数设置为1
-    
     PIT_GetDefaultConfig(&pitConfig);   //默认配置为false
               
     PIT_Init(PIT, &pitConfig);          //第一次初始化便于打开时钟
@@ -111,7 +108,7 @@ uint32 pit_get(PIT_enum pit_ch)
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      获取计时器值
+//  @brief      关闭PIT定时器
 //  @param      pit_ch      选择模块的通道 (选择范围 由PIT_enum枚举值的内容确定)
 //  @return     void      
 //  Sample usage:           关闭定时器并清除标志位

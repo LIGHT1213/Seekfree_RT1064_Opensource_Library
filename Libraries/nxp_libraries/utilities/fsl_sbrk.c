@@ -19,7 +19,6 @@
 // * memory allocation failed. This function changes to compare __HeapLimit with
 // * heap end.
 // */
-// //--library_interface=armcc --diag_suppress=66,1296,186,1 --bss_threshold=0
 //caddr_t _sbrk(int incr)
 //{
 //    extern char end __asm("end");

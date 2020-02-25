@@ -19,6 +19,11 @@
  
 #include "common.h"
 
+
+uint8 flexio_camera_type;//1：总钻风  2：凌瞳
+
+
+
 void NMI_Handler(void)
 {
 	while(1);
@@ -56,7 +61,9 @@ void PendSV_Handler(void)
 {
 	while(1);
 }
-void SysTick_Handler(void)
-{
-	while(1);
-}
+
+//此函数已经在fsl_sdmmc_event.c文件中定义
+//void SysTick_Handler(void)
+//{
+//	while(1);
+//}

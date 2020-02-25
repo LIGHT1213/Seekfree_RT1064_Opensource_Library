@@ -27,6 +27,7 @@
 #include "fsl_debug_console.h"
 #include "usb_device_descriptor.h"
 #include "usb_phy.h"
+#include "zf_systick.h"
 #include "zf_usb_cdc.h"
 
 
@@ -591,13 +592,18 @@ uint8 usb_check_busy(void)
 //-------------------------------------------------------------------------------------------------------------------
 void usb_cdc_send_char(uint8 dat)
 {
+	uint16 delay_num=0;
+	
 	if(usb_cdc_com_open_flag)
 	{
-		while(usb_check_busy());//正在忙
+		while(usb_check_busy())//正在忙
+		{
+			systick_delay_us(10);
+			if(5000 <= delay_num++)usb_cdc_com_open_flag = 0;
+			if(!usb_cdc_com_open_flag) return;//串口已关闭
+		}
 		USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, &dat, 1);
 	}
-    
-
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -608,13 +614,18 @@ void usb_cdc_send_char(uint8 dat)
 //-------------------------------------------------------------------------------------------------------------------
 void usb_cdc_send_str(const int8 *str)
 {
+	uint16 delay_num=0;
+	
 	if(usb_cdc_com_open_flag)
 	{
-		while(usb_check_busy());//正在忙
+		while(usb_check_busy())//正在忙
+		{
+			systick_delay_us(10);
+			if(5000 <= delay_num++)usb_cdc_com_open_flag = 0;
+			if(!usb_cdc_com_open_flag) return;//串口已关闭
+		}
 		USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, (uint8 *)str, strlen(str));
 	}
-    
-
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -626,22 +637,31 @@ void usb_cdc_send_str(const int8 *str)
 //-------------------------------------------------------------------------------------------------------------------
 void usb_cdc_send_buff(uint8 *p, uint32 length)
 {
+	uint16 delay_num=0;
+	
 	while(length)
 	{
-		while(usb_check_busy());//正在忙
-		if(usb_cdc_com_open_flag)
+		if(!usb_cdc_com_open_flag) 		return;//串口已关闭
+		while(usb_check_busy())//正在忙
 		{
-			if(length>512)
+			systick_delay_us(10);
+			if(10000 <= delay_num++)
 			{
-				USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, p, 512);
-				p += 512;
-				length -= 512;
+				usb_cdc_com_open_flag = 0;
 			}
-			else
-			{
-				USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, p, length);
-				length = 0;
-			}
+			if(!usb_cdc_com_open_flag) return;//串口已关闭
 		}
+		if(length>512)
+		{
+			USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, p, 512);
+			p += 512;
+			length -= 512;
+		}
+		else
+		{
+			USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, p, length);
+			length = 0;
+		}
+		
 	}
 }
