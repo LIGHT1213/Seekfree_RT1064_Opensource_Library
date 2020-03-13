@@ -1,3 +1,6 @@
+# 注意此工程由于逐飞库支持v6版本，目前已经停止更新。
+ 需要下载的请前往 [逐飞](https://gitee.com/seekfree/RT1064_Library?_from=gitee_search)下载，或者使用链接https://gitee.com/seekfree/RT1064_Library.git下载clone。
+
 # Seekfree_RT1064_Opensource_Library
 # 根据ARM官方指导手册修改了部分库文件，目前他已经支持LLVM编译器（armclang）
 # 在同样打开 browse information的情况下
@@ -6,11 +9,11 @@
 # 但是v5的编译器需要超过5分钟的时间
 ![Image text](https://raw.githubusercontent.com/LIGHT1213/picture/master/2.jpg)
 # 由于本人精力有限，此库所使用的逐飞库的版本通常落后于逐飞官方的版本
-=======================================================================
-~~# 注意如果出现如图所示的错误~~
+=======================================================================  
+~~# 注意如果出现如图所示的错误~~  
 
 ![Image text](https://raw.githubusercontent.com/LIGHT1213/picture/master/1.jpg)
 
-~~# 请切换回v5完全编译一次（此次编译无需开启browse information），再切换回来即可。~~
-~~# 此种情况出现的原因可能是scf分散加载文件导致的~~
+~~# 请切换回v5完全编译一次（此次编译无需开启browse information），再切换回来即可。~~  
+~~# 此种情况出现的原因可能是scf分散加载文件导致的~~  
 # 该问题目前已经修复
